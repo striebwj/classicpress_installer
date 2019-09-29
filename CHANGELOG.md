@@ -1,5 +1,11 @@
 # Release Notes
 
+
+## ClassicPress Installer v0.1.0 (2019-09-29)
+
+### Changed
+- Reworked [Laravel Installer](https://github.com/laravel/installer/) to install ClassicPress
+
 ## [Unreleased](https://github.com/laravel/installer/compare/v2.0.1...master)
 
 
