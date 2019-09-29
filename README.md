@@ -26,3 +26,8 @@ classicpress new blog
 ### To Do
  - [ ] Dynamically get the latest version of ClassicPress
  - [ ] Make use of the `-dev` flag to install the latest nightly release
+
+
+---
+
+This is a fork of the [Laravel Installer](https://github.com/laravel/installer/).
