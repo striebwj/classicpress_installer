@@ -1,17 +1,18 @@
 {
-    "name": "laravel/installer",
-    "description": "Laravel application installer.",
-    "keywords": ["laravel"],
+    "name": "striebwj/installer",
+    "description": "ClassicPress application installer.",
+    "keywords": ["classicPress"],
     "license": "MIT",
+    "homepage": "https://www.classicpress.net/",
     "authors": [
         {
-            "name": "Taylor Otwell",
-            "email": "taylorotwell@gmail.com"
+            "name": "ClassicPress Community",
+            "homepage": "https://www.classicpress.net/contributors/"
         }
     ],
     "autoload": {
         "psr-4": {
-            "Laravel\\Installer\\Console\\": "src/"
+            "ClassicPress\\Installer\\Console\\": "src/"
         }
     },
     "require": {
@@ -22,6 +23,6 @@
         "symfony/process": "~3.0|~4.0"
     },
     "bin": [
-        "laravel"
+        "classicpress"
     ]
 }

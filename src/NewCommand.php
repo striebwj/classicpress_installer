@@ -1,6 +1,6 @@
 <?php
 
-namespace Laravel\Installer\Console;
+namespace ClassicPress\Installer\Console;
 
 use GuzzleHttp\Client;
 use RuntimeException;
@@ -25,7 +25,7 @@ class NewCommand extends Command
     {
         $this
             ->setName('new')
-            ->setDescription('Create a new Laravel application')
+            ->setDescription('Create a new ClassicPress site')
             ->addArgument('name', InputArgument::OPTIONAL)
             ->addOption('dev', null, InputOption::VALUE_NONE, 'Installs the latest "development" release')
             ->addOption('force', 'f', InputOption::VALUE_NONE, 'Forces install even if the directory already exists');
@@ -50,45 +50,13 @@ class NewCommand extends Command
             $this->verifyApplicationDoesntExist($directory);
         }
 
-        $output->writeln('<info>Crafting application...</info>');
+        $output->writeln('<info>Installing ClassicPress...</info>');
 
         $this->download($zipFile = $this->makeFilename(), $this->getVersion($input))
              ->extract($zipFile, $directory)
-             ->prepareWritableDirectories($directory, $output)
              ->cleanUp($zipFile);
 
-        $composer = $this->findComposer();
-
-        $commands = [
-            $composer.' install --no-scripts',
-            $composer.' run-script post-root-package-install',
-            $composer.' run-script post-create-project-cmd',
-            $composer.' run-script post-autoload-dump',
-        ];
-
-        if ($input->getOption('no-ansi')) {
-            $commands = array_map(function ($value) {
-                return $value.' --no-ansi';
-            }, $commands);
-        }
-
-        if ($input->getOption('quiet')) {
-            $commands = array_map(function ($value) {
-                return $value.' --quiet';
-            }, $commands);
-        }
-
-        $process = new Process(implode(' && ', $commands), $directory, null, null, null);
-
-        if ('\\' !== DIRECTORY_SEPARATOR && file_exists('/dev/tty') && is_readable('/dev/tty')) {
-            $process->setTty(true);
-        }
-
-        $process->run(function ($type, $line) use ($output) {
-            $output->write($line);
-        });
-
-        $output->writeln('<comment>Application ready! Build something amazing.</comment>');
+        $output->writeln('<comment>ClassicPress ready!</comment>');
     }
 
     /**
@@ -100,7 +68,7 @@ class NewCommand extends Command
     protected function verifyApplicationDoesntExist($directory)
     {
         if ((is_dir($directory) || is_file($directory)) && $directory != getcwd()) {
-            throw new RuntimeException('Application already exists!');
+            throw new RuntimeException('ClassicPress already exists here!');
         }
     }
 
@@ -111,7 +79,7 @@ class NewCommand extends Command
      */
     protected function makeFilename()
     {
-        return getcwd().'/laravel_'.md5(time().uniqid()).'.zip';
+        return getcwd().'/classicpress_'.md5(time().uniqid()).'.zip';
     }
 
     /**
@@ -123,6 +91,7 @@ class NewCommand extends Command
      */
     protected function download($zipFile, $version = 'master')
     {
+        // TODO: Get lastest and nightly dynamically
         switch ($version) {
             case 'develop':
                 $filename = 'latest-develop.zip';
@@ -132,7 +101,8 @@ class NewCommand extends Command
                 break;
         }
 
-        $response = (new Client)->get('http://cabinet.laravel.com/'.$filename);
+        // TODO: Install zip from "official" site
+        $response = (new Client)->get('https://github.com/striebwj/ClassicPress-release/releases/download/1.1.0/ClassicPress.zip');
 
         file_put_contents($zipFile, $response->getBody());
 
@@ -175,27 +145,6 @@ class NewCommand extends Command
     }
 
     /**
-     * Make sure the storage and bootstrap cache directories are writable.
-     *
-     * @param  string  $appDirectory
-     * @param  \Symfony\Component\Console\Output\OutputInterface  $output
-     * @return $this
-     */
-    protected function prepareWritableDirectories($appDirectory, OutputInterface $output)
-    {
-        $filesystem = new Filesystem;
-
-        try {
-            $filesystem->chmod($appDirectory.DIRECTORY_SEPARATOR.'bootstrap/cache', 0755, 0000, true);
-            $filesystem->chmod($appDirectory.DIRECTORY_SEPARATOR.'storage', 0755, 0000, true);
-        } catch (IOExceptionInterface $e) {
-            $output->writeln('<comment>You should verify that the "storage" and "bootstrap/cache" directories are writable.</comment>');
-        }
-
-        return $this;
-    }
-
-    /**
      * Get the version that should be downloaded.
      *
      * @param  \Symfony\Component\Console\Input\InputInterface  $input
@@ -208,21 +157,5 @@ class NewCommand extends Command
         }
 
         return 'master';
-    }
-
-    /**
-     * Get the composer command for the environment.
-     *
-     * @return string
-     */
-    protected function findComposer()
-    {
-        $composerPath = getcwd().'/composer.phar';
-
-        if (file_exists($composerPath)) {
-            return '"'.PHP_BINARY.'" '.$composerPath;
-        }
-
-        return 'composer';
     }
 }
